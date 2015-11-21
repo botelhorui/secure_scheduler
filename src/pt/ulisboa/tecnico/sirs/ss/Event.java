@@ -1,12 +1,13 @@
 package pt.ulisboa.tecnico.sirs.ss;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
  * Created by Engineer on 19-11-2015.
  */
-public class Event {
+public class Event implements Serializable {
     private LocalDateTime dateTime;
     private String description;
 
