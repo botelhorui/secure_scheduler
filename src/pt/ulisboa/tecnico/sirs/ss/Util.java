@@ -54,6 +54,7 @@ public final class Util {
                 s = "~/Documents/secure.calendar/";
                 break;
             case Windows:
+                // C://Users/Rui/My Documents
                 String docs = FileSystemView.getFileSystemView().getDefaultDirectory().getAbsolutePath();
                 s = docs + "\\secure.calendar\\";
                 break;
