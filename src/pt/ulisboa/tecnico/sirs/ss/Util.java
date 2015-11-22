@@ -9,32 +9,31 @@ package pt.ulisboa.tecnico.sirs.ss;
  * http://www.docjar.com/html/api/org/apache/commons/lang/SystemUtils.java.html
  */
 import javax.swing.filechooser.FileSystemView;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 public final class Util {
-    /**
-     * types of Operating Systems
-     */
-    public enum OSType {
-        Windows, MacOS, Linux, Other
-    };
 
+    public static final String SECURE_CALENDAR = "secure.calendar";
     // cached result of OS detection
     protected static OSType detectedOS;
+
 
     /**
      * detect the operating system from the os.name System property and cache
      * the result
      *
-     * @returns - the operating system detected
+     * @return - the operating system detected
      */
     public static OSType getOperatingSystemType() {
         if (detectedOS == null) {
             String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-            if ((OS.indexOf("mac") >= 0) || (OS.indexOf("darwin") >= 0)) {
+            if ((OS.contains("mac")) || (OS.contains("darwin"))) {
                 detectedOS = OSType.MacOS;
-            } else if (OS.indexOf("win") >= 0) {
+            } else if (OS.contains("win")) {
                 detectedOS = OSType.Windows;
-            } else if (OS.indexOf("nux") >= 0) {
+            } else if (OS.contains("nux")) {
                 detectedOS = OSType.Linux;
             } else {
                 detectedOS = OSType.Other;
@@ -43,25 +42,33 @@ public final class Util {
         return detectedOS;
     }
 
-    public static String getStoragePath(){
+    public static Path getStoragePath() {
         OSType operatingSystemType = getOperatingSystemType();
-        String s = "";
+        Path p = null;
         switch (operatingSystemType){
             case Linux:
-                s = "~/secure.calendar/";
+                p = Paths.get("~", SECURE_CALENDAR);
                 break;
             case MacOS:
-                s = "~/Documents/secure.calendar/";
+                p = Paths.get("~", "Documents", SECURE_CALENDAR);
                 break;
             case Windows:
                 // C://Users/Rui/My Documents
-                String docs = FileSystemView.getFileSystemView().getDefaultDirectory().getAbsolutePath();
-                s = docs + "\\secure.calendar\\";
+                File docs = FileSystemView.getFileSystemView().getDefaultDirectory();
+                Path docsPath = Paths.get(docs.getPath());
+                p = docsPath.resolve(SECURE_CALENDAR);
                 break;
             case Other:
                 throw new RuntimeException(String.format("Unsupported OS: %s", operatingSystemType.name()));
 
         }
-        return s;
+        return p;
+    }
+
+    /**
+     * types of Operating Systems
+     */
+    public enum OSType {
+        Windows, MacOS, Linux, Other
     }
 }
