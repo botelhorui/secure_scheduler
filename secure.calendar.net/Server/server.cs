@@ -8,16 +8,41 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
 
+/*
+    http://www.codeproject.com/Articles/162194/Certificates-to-DB-and-Back
+
+    Generation of 2048 bits, RSA private key.
+    > openssl genrsa -out private.key
+
+    Generate public key.
+    > openssl rsa -in private.key -puout > public.key
+
+    Generate a self signed certificate. To be used as CA certificate.
+    request:
+    > openssl req -new -key private.key -out server.csr
+    self sign:
+    > openssl x509 -req -days 365 -in server.csr -signkey private.key -out server.crt
+
+
+
+    store private key next to certificate, pkcs12 format
+    > openssl pkcs12 -export -in server.crt -inkey private.key -out cert_key.p12
+    > password:sirs
+
+    */
+
+
+
 namespace Server
 {
     public sealed class SslTcpServer
     {
-        static X509Certificate serverCertificate = null;
+        static X509Certificate2 serverCertificate = null;
         // The certificate parameter specifies the name of the file 
         // containing the machine certificate.
         public static void RunServer(string certificate)
         {
-            serverCertificate = new X509Certificate(certificate, "ricardo.chaves");
+            serverCertificate = new X509Certificate2(certificate, "sirs");
             // Create a TCP/IP (IPv4) socket and listen for incoming connections.
             TcpListener listener = new TcpListener(IPAddress.Any, 4321);
             listener.Start();
@@ -165,13 +190,15 @@ namespace Server
         }
         public static int Main(string[] args)
         {
+            /*
             string certificate = null;
             if (args == null || args.Length < 1)
             {
                 DisplayUsage();
             }
             certificate = args[0];
-            SslTcpServer.RunServer(certificate);
+            */
+            SslTcpServer.RunServer("cert_key.p12");
             return 0;
         }
     }

@@ -7,6 +7,16 @@ using System.Security.Authentication;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
+
+/*
+    Install generated server certificate "server.crt" (see server.cs file):
+    > certutil -addstore "Root" "server.crt"
+
+    check installed running
+    > mmc
+    In the GUI, File Menu, Add/Remove snap in, add Certificates, press ok
+
+*/
 namespace Client
 {
     public class SslTcpClient
@@ -105,6 +115,7 @@ namespace Client
         }
         public static int Main(string[] args)
         {
+            /*
             string serverCertificateName = null;
             string machineName = null;
             if (args == null || args.Length < 1)
@@ -123,6 +134,8 @@ namespace Client
                 serverCertificateName = args[1];
             }
             SslTcpClient.RunClient(machineName, serverCertificateName);
+            */
+            SslTcpClient.RunClient("127.0.0.1", "Secure Calendar");
             Console.WriteLine("press any key");
             Console.Read();
             return 0;
