@@ -158,22 +158,61 @@ namespace SecureCalendarClient
                 return;
             }
             log("Login succesfull");
-            /*
+            
             ReadCalendarRequest read = new ReadCalendarRequest() { calendarName = "Rui's calendar" };
             Util.writeObject(sslStream,read);
             recvObj = Util.readObject(sslStream);
             if(recvObj is SecureCalendar)
             {
                 sc = (SecureCalendar)recvObj;
+                logF(Util.XmlSerializeToString(recvObj));
             }
             else
             {
                 log("Read failed");
                 return;
             }
-            log("Read successfull");
-            */
+            EncryptedFileEncryptionKey eFEK = sc.keys.Find(x => x.username == username);
+            if(eFEK == null)
+            {
+                log("Read failed, eFEK not found");
+                return;
+            }
+            log("Found eFEK");
+            string KEK = null;
+            string privateKey;
+            string FEK = null;
+            byte[] FEKb;
+
+            // produce KEK
+            using (var db = new Rfc2898DeriveBytes(password,
+                Convert.FromBase64String(confirmation.KEKSalt),
+                ITERATIONS))
+            {
+                KEK = Convert.ToBase64String(db.GetBytes(KEY_SIZE));
+            }
+            // decrypt private key
+            privateKey = Util.Decrypt(KEK, confirmation.privateIV, confirmation.encryptedPrivateKey);           
+            // decrypt eFEK
+            RSACryptoServiceProvider rsaPrivate = new RSACryptoServiceProvider();
+            rsaPrivate.FromXmlString(privateKey);
+            FEKb = rsaPrivate.Decrypt(Convert.FromBase64String(eFEK.eFEK), false);
+            FEK = Convert.ToBase64String(FEKb);
+            string events = Util.Decrypt(FEK,sc.IV,sc.encryptedEvents);
+            // decrypt calendar           
+            logF("Events:{0}", events);
+            log("Read successfull");            
         }
+
+
+
+
+
+
+
+
+
+
         /*
         private void writeObject(SslStream sslStream, object obj)
         {
@@ -271,7 +310,7 @@ namespace SecureCalendarClient
         private delegate void logDelegate(string str);
         public void log(string str)
         {
-            if (InvokeRequired)
+            if (logForm.InvokeRequired)
             {
                 Invoke(new logDelegate(log), new object[] { str });
             }

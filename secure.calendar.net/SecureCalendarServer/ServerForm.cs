@@ -87,11 +87,12 @@ namespace SecureCalendarServer
         {
             InitializeComponent();
             //generateInitialState();
+            //return;
+            
             var xml = File.ReadAllText("initial.state.xml");
             logF("file loaded {0} length", xml.Length);
             serverData = Util.XmlDeserializeFromString<ServerData>(xml);
-            logF("Loaded server data. {0} users. {0} calendars.",serverData.users.Count,
-                serverData.calendars.Count);
+            log(Util.XmlSerializeToString(serverData));
             certificate = new X509Certificate2("cert_key.p12", "sirs");
             
             Thread t = new Thread(new ThreadStart(listen));            
@@ -227,7 +228,8 @@ namespace SecureCalendarServer
                 var lc = new LoginConfirmation()
                 {
                     encryptedPrivateKey = userData.encryptedPrivateKey,
-                    privateIV = userData.privateIV
+                    privateIV = userData.privateIV,
+                    KEKSalt = userData.KEKSalt
                 };
                 foreach(var x in serverData.users)
                 {
@@ -266,6 +268,7 @@ namespace SecureCalendarServer
                         return;
                     }
                     Util.writeObject(sslStream, sc);
+                    log("Read successfull");
 
                 }else if(req is SecureCalendar)
                 {
@@ -284,6 +287,7 @@ namespace SecureCalendarServer
                     }
                     serverData.calendars.Add(newCalendar);
                     serverData.calendars.Remove(oldCalendar);
+                    log("Write successfull");
                     // TODO check if permitions where changed
                 }
                 else
@@ -372,7 +376,6 @@ namespace SecureCalendarServer
             SecureCalendar sc = new SecureCalendar() { };
 
             // KEK
-            byte[] FEKb = null;
             string FEK = "";
             string events = "10:00 Dev team meeting. 20:00 Son birthday party";
 
@@ -402,8 +405,7 @@ namespace SecureCalendarServer
                             byte[] x = Encoding.UTF8.GetBytes(Util.XmlSerializeToString(events));
                             writer.Write(x, 0, x.Length);
                             writer.FlushFinalBlock();
-                            FEKb = to.ToArray();
-                            sc.encryptedEvents = Convert.ToBase64String(FEKb);
+                            sc.encryptedEvents = Convert.ToBase64String(to.ToArray());
                         }
                     }
                 }
@@ -412,7 +414,7 @@ namespace SecureCalendarServer
             //Encode FEK with public key
             RSACryptoServiceProvider rsaPublic = new RSACryptoServiceProvider();
             rsaPublic.FromXmlString(userdata.publicKey);
-            byte[] eFEKb = rsaPublic.Encrypt(FEKb, false);
+            byte[] eFEKb = rsaPublic.Encrypt(Convert.FromBase64String(FEK), false);
             string eFEK = Convert.ToBase64String(eFEKb);
             sc.keys.Add(new EncryptedFileEncryptionKey() {
                 username = username,
@@ -442,15 +444,15 @@ namespace SecureCalendarServer
                 kek = Convert.ToBase64String(db.GetBytes(KEY_SIZE));
             }
             // RSA
-            string publickey = "";
-            string privatekey = "";
-            string privateiv = "";
-            string encryptedprivatekey = "";
+            string publickey;
+            string privatekey;
+            string privateiv;
+            string encryptedprivatekey;
             // Generate RSA key pair
             using (var rsa = new RSACryptoServiceProvider(RSA_SIZE))
             {
                 try
-                {
+                {                    
                     privatekey = rsa.ToXmlString(true);
                     publickey = rsa.ToXmlString(false);
                 }
@@ -460,6 +462,7 @@ namespace SecureCalendarServer
                     rsa.PersistKeyInCsp = false;
                 }
             }
+            byte[] privatekeyb = Encoding.UTF8.GetBytes(privatekey);
 
             /*
             logF("register user {0} , password {1}", username, password);
@@ -472,27 +475,30 @@ namespace SecureCalendarServer
             using (var cipher = new AesManaged())
             {
                 cipher.Mode = CipherMode.CBC;
-                cipher.KeySize = KEY_SIZE * 8;
+                cipher.KeySize = 128;
+                cipher.BlockSize = 128;
+                cipher.Padding = PaddingMode.PKCS7;
+                //
                 cipher.GenerateIV();
                 privateiv = Convert.ToBase64String(cipher.IV);
-                using (ICryptoTransform encryptor = cipher.CreateEncryptor(
-                    Convert.FromBase64String(kek),
-                    Convert.FromBase64String(privateiv)))
+                cipher.Key = Convert.FromBase64String(kek);
+                cipher.IV = Convert.FromBase64String(privateiv);
+                using (ICryptoTransform encryptor = cipher.CreateEncryptor(cipher.Key,cipher.IV))
                 {
                     using (MemoryStream to = new MemoryStream())
                     {
                         using (CryptoStream writer = new CryptoStream(to, encryptor, CryptoStreamMode.Write))
                         {
-                            byte[] x = System.Text.Encoding.UTF8.GetBytes(privatekey);
-                            writer.Write(x, 0, x.Length);
+                            
+                            writer.Write(privatekeyb, 0, privatekeyb.Length);
                             writer.FlushFinalBlock();
                             encryptedprivatekey = Convert.ToBase64String(to.ToArray());
                         }
                     }
                 }
+               
                 cipher.Clear();
             }
-
 
             UserData ud = new UserData()
             {
@@ -511,7 +517,7 @@ namespace SecureCalendarServer
         private delegate void logDelegate(string str);
         public void log(string str)
         {
-            if (InvokeRequired)
+            if (logForm.InvokeRequired)
             {
                 Invoke(new logDelegate(log), new object[] { str });
             }

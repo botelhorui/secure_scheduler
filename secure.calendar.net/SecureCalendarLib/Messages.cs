@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Security;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -39,6 +40,7 @@ namespace SecureCalendarLib
     {
         //encrypted using PBKDF2(pw,simmetricSalt)
         public string encryptedPrivateKey = "";
+        public string KEKSalt = "";
         public string privateIV = "";
         public List<UserPublicKey> permission = new List<UserPublicKey>();
     }
@@ -78,6 +80,37 @@ namespace SecureCalendarLib
 
     public class Util
     {
+        public static string Decrypt(string key,string iv, string input)
+        {
+            string t;
+            using (var cipher = new AesManaged())
+            {
+                cipher.Mode = CipherMode.CBC;
+                cipher.KeySize = 128;
+                cipher.BlockSize = 128;
+                cipher.Padding = PaddingMode.PKCS7;
+                //
+                cipher.Key = Convert.FromBase64String(key);
+                cipher.IV = Convert.FromBase64String(iv);
+                byte[] output = Convert.FromBase64String(input);
+                using (ICryptoTransform decryptor = cipher.CreateDecryptor(cipher.Key, cipher.IV))
+                {
+                    using (MemoryStream from = new MemoryStream(output))
+                    {
+                        using (CryptoStream reader = new CryptoStream(from, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (StreamReader sreader = new StreamReader(reader))
+                            {
+                                t = sreader.ReadToEnd();
+                                                                
+                            }
+                        }
+                    }
+                }
+                cipher.Clear();
+            }
+            return t;
+        }
         public static void writeObject(SslStream sslStream, object obj)
         {
             byte[] userDataBytes;
