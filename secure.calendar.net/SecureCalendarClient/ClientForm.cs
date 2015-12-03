@@ -20,6 +20,7 @@ using System.Threading;
 using SecureCalendarLib;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
 
 
 /*
@@ -36,6 +37,11 @@ namespace SecureCalendarClient
 {
     public partial class ClientForm : Form
     {
+        const int SALT_SIZE = 16;
+        const int KEY_SIZE = 16;
+        const int ITERATIONS = 10000;
+        const int RSA_SIZE = 2048;
+
         string HOST = "127.0.0.1";
         int PORT = 4321;
         string CN = "Secure Calendar";
@@ -83,6 +89,7 @@ namespace SecureCalendarClient
                 sslStream.AuthenticateAsClient(CN);
                 log("Server authenticated");
                 protocol(sslStream);
+                log("protocol finished. Exit...");
             }
             catch (AuthenticationException e)
             {
@@ -104,29 +111,162 @@ namespace SecureCalendarClient
 
         private void protocol(SslStream sslStream)
         {
-            SecureCalendar sc = new SecureCalendar()
-            {
-                name = "New client calendar"
-            };
-            sc.events.Add("12:00 Lunch");
-            sc.events.Add("14:00 Sleep");
-            log("Created calendar:");
-            log(Util.ObjectToXml(sc));
-            writeObject(sslStream, sc);
-        }
+            var username = "rui";
+            var password = "ruisirs";
+            object recvObj = null;
+            var request = new LoginRequest() { username = username};
+            LoginChallenge challenge = null;
+            LoginResponse response = null;
+            LoginConfirmation confirmation = null;
+            SecureCalendar sc = null;
 
-        private void writeObject(SslStream sslStream, SecureCalendar sc)
+            log(Util.XmlSerializeToString(request));
+            Util.writeObject(sslStream, request);
+            recvObj = Util.readObject(sslStream);
+            if(recvObj is LoginChallenge)
+            {
+                challenge = (LoginChallenge)recvObj;
+                log(Util.XmlSerializeToString(challenge));
+            }
+            else
+            {
+                log("Login failed: did not receive login challenge");
+                return;
+            }
+            // PBKDF2
+            string pwhash = "";
+            // password hash
+            using (var db = new Rfc2898DeriveBytes(password,
+                Convert.FromBase64String(challenge.passwordSalt),
+                ITERATIONS))
+            {                
+                pwhash = Convert.ToBase64String(db.GetBytes(KEY_SIZE));
+            }
+            response = new LoginResponse() { passwordHash = pwhash };
+            Util.writeObject(sslStream,response);
+            log(Util.XmlSerializeToString(response));
+            recvObj = Util.readObject(sslStream);
+            
+            if (recvObj is LoginConfirmation)
+            {
+                confirmation = (LoginConfirmation)recvObj;
+                log(Util.XmlSerializeToString(confirmation));
+            }
+            else
+            {
+                log("Login failed: did not receive login confirmation");
+                return;
+            }
+            log("Login succesfull");
+            /*
+            ReadCalendarRequest read = new ReadCalendarRequest() { calendarName = "Rui's calendar" };
+            Util.writeObject(sslStream,read);
+            recvObj = Util.readObject(sslStream);
+            if(recvObj is SecureCalendar)
+            {
+                sc = (SecureCalendar)recvObj;
+            }
+            else
+            {
+                log("Read failed");
+                return;
+            }
+            log("Read successfull");
+            */
+        }
+        /*
+        private void writeObject(SslStream sslStream, object obj)
         {
             byte[] userDataBytes;
             MemoryStream ms = new MemoryStream();
             BinaryFormatter bf1 = new BinaryFormatter();
-            bf1.Serialize(ms, sc);
+            bf1.Serialize(ms, obj);
             userDataBytes = ms.ToArray();
             byte[] userDataLen = BitConverter.GetBytes((Int32)userDataBytes.Length);
             sslStream.Write(userDataLen, 0, 4);
             sslStream.Write(userDataBytes, 0, userDataBytes.Length);
-            logF("Sent an object of type {0} length {1}", sc.GetType(), userDataBytes.Length);
+            logF("Sent an object of type {0} length {1}:", obj.GetType(), userDataBytes.Length);
+            log(Util.XmlSerializeToString(obj));
         }
+
+        private object readObject(SslStream sslStream)
+        {
+            byte[] readMsgLen = new byte[4];
+            int dataRead = 0;
+            do
+            {
+                dataRead += sslStream.Read(readMsgLen, 0, 4 - dataRead);
+            } while (dataRead < 4);
+
+            int dataLen = BitConverter.ToInt32(readMsgLen, 0);
+            logF("header: message length {0}", dataLen);
+            if (dataLen == 0)
+            {
+                return null;
+            }
+            byte[] readMsgData = new byte[dataLen];
+
+            int len = dataLen;
+            dataRead = 0;
+            do
+            {
+                dataRead += sslStream.Read(readMsgData, dataRead, len - dataRead);
+
+            } while (dataRead < len);
+            logF("received {0} bytes", len);
+            //deserialize
+            MemoryStream ms = new MemoryStream(readMsgData);
+            BinaryFormatter bf1 = new BinaryFormatter();
+            ms.Position = 0;
+            object rawObj = bf1.Deserialize(ms);
+            log(Util.XmlSerializeToString(rawObj));
+            return rawObj;
+        }
+
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         private delegate void logDelegate(string str);
         public void log(string str)
@@ -141,7 +281,7 @@ namespace SecureCalendarClient
                 {
                     throw new ObjectDisposedException("lol?");
                 }
-                logForm.AppendText(str + "\r\n");
+                logForm.AppendText(str + "\r\n\r\n");
             }
 
         }

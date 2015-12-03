@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ServerData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <users>
+    <UserData>
+      <username>rui</username>
+      <passwordSalt>PjWORcbYu/s5OtI3FKlHYw==</passwordSalt>
+      <passwordHash>kjaHbT38FGYzHup8lrqTSg==</passwordHash>
+      <KEKSalt>/AUBySAbwLgR+ZCgA2K7iA==</KEKSalt>
+      <publicKey>&lt;RSAKeyValue&gt;&lt;Modulus&gt;jhoTpq/xnuiDjDQvsIfir6rG6TgCIGdPILmSOyfcKjesys9ESsmAiIoxDtLZR8t12dl6jJ5E/lxvFPjhGxS816+eSpYKlRMi5vEgk4CTICj/dfdwi74fUvCKeYIWNZp8iqd0zUhvSMRTZ54r6/peUzIRTFHGaNmMQ6NXmE0hW/dc6IPxuVwsKl4PeJ3XEWi2cf4mDSzj1gOT7CcgxQ3E5ClMLMxonJBofxK44aGorJRC1ZPN2uThHBCK/18nIvihHPoPhhPBLE4+xGdB8JnLBeKb4Cqd4r42e42hiHMS7rpb8rlC0NiE/Y7J23Q1o0QChn3vyOMxYAynM4D//2REvw==&lt;/Modulus&gt;&lt;Exponent&gt;AQAB&lt;/Exponent&gt;&lt;/RSAKeyValue&gt;</publicKey>
+      <privateIV>QgdTsY1oYzwCKu0t/F/a/w==</privateIV>
+      <encryptedPrivateKey>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</encryptedPrivateKey>
+    </UserData>
+    <UserData>
+      <username>ricardo</username>
+      <passwordSalt>Yw+rP/tgAvobCe96MOZ81g==</passwordSalt>
+      <passwordHash>jNo4eWOewhzdyVb6fOXg2w==</passwordHash>
+      <KEKSalt>jvb1o8WAx+NRKidmLK3O+w==</KEKSalt>
+      <publicKey>&lt;RSAKeyValue&gt;&lt;Modulus&gt;mhfQnP/MovUPalZvAlF21t96/89XV0BIAHMJ3YDY0sKAbqlZ4H7TeJXdRk5pFWcugAiMWtO/7sp8NQMAA0WiyxqPOoF99vkpybkmoQdIo4T1ihG+XmFU+gBj4Wu4SdQcOhC56CseTmaViw3RPxCJr4MzpqsSt+orVRBI6D7g2D2xkVGqoFFP8U+oi65vqgK9OXuZ21K/R0SH69tknFhY0/t04l8+Dbm9CNa9DVZkK6KOnt35shu9WRmsVj7Bs7XKnnpBIbgS0rJ3UEkud2QdaE9kkp2QSb9zScftpywzGAqurfSherz6RUj9yV1EnrhrQouFFnAxWjhKuzwfdKulbw==&lt;/Modulus&gt;&lt;Exponent&gt;AQAB&lt;/Exponent&gt;&lt;/RSAKeyValue&gt;</publicKey>
+      <privateIV>VPF/NweZ5/QsfhsfhSTDhg==</privateIV>
+      <encryptedPrivateKey>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</encryptedPrivateKey>
+    </UserData>
+  </users>
+  <calendars>
+    <SecureCalendar>
+      <name>Rui's calendar</name>
+      <IV>FK3pMVr59EYW0Fre6PzfRg==</IV>
+      <encryptedEvents>D2v0b1sjKRdAaAssZ8sDMP7fo7R21l3Ym4gI1WjB2mwGvOFRhuVy1RxQ1IhT9WCzFstXdOrk3xozbK65MMUwTFQCgdA7NnYrMKxDZhzLZwR+ecE6/qw71GshgxQosfwa8HfBiLFTp5c+lqf2ds7IIw==</encryptedEvents>
+      <keys>
+        <EncryptedFileEncryptionKey>
+          <username>rui</username>
+          <eFEK>UAVcbeP+cTN79ByB/7tzz7eyC4MgwSfPCUcZsVyiu4wCo8hcvB2Z1H/+q4bT+e7e5WeeA98gpm5cXE/TL99Fs+WFbVZls0GW2S6CawKs7QhvmI46XUU4UZqEsx6rM8pF1Q87kuiBRUNvG2lvASzEO6fABF2jf98w00ThrAyiL5L/rfwi64EKMr7WVTuvtF2VXhC2G8XgPbxGbb++rkkUp0rOBeMIr0qDh8FeLRW8sXlwFt/Yyp/ywv0X4yTedKTjxgaX/lusSQSOu3NHd49ljzIJ56Dwz0eNTJSy1xCHbMyIbJuJsq2Xs0/Pkr+OTerONWaXW88gYXgHEBEnrebKFw==</eFEK>
+        </EncryptedFileEncryptionKey>
+      </keys>
+    </SecureCalendar>
+    <SecureCalendar>
+      <name>Business Calendar</name>
+      <IV>62V+365BDJe0epkQydLyVA==</IV>
+      <encryptedEvents>Bf6mhvdiUGISe46M+P8kk2lIpHz9FkE7Is5AcH1DWpya4W6QAELAF38jN5XqxEbl71jgU0PGjQjA59I0jOh5Ph7T92/r6KIEn6DsMWEHx1vooSRt45vndJkkZvOzDjZF4cr5sJZ3boRNQlixtvj6Mw==</encryptedEvents>
+      <keys>
+        <EncryptedFileEncryptionKey>
+          <username>ricardo</username>
+          <eFEK>VVeu2yChSvehYjtiI6YSo29psvf0LGFQeclyjHjQ22SWW5BcJwjuPbarkRH/jJu5Z5ojLS8zfZN517Yxj0iBYGkELOprxGjN4wlby86a/9u8KQYvKgU7j62iKvcJ7hgweOe/i0vJdqs9iIUkSFAI4V4+suOE+RSQF4fMx3OxKkQQf/46UMZoke2hVTpxuVf8S2fZgWBLZ1FOC3HZ4wxZ4rnCbgZkFBN5dK+TazlW3v8eoBlXlu+rNZPM+Yo9e16IO13eX4Z9DZcwkYl8UOxCSz+rIf3lCTz67bKf7df1Pidz+SBIc4Rmueb+QAAbXl0RjjveS3Zb2QkA6P6ZmIEq2w==</eFEK>
+        </EncryptedFileEncryptionKey>
+      </keys>
+    </SecureCalendar>
+  </calendars>
+</ServerData>
