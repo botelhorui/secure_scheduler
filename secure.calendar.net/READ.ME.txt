@@ -1,0 +1,4 @@
+Install .\keys.certs\server.crt
+Open solution in Visual Studio and Build
+Run .\SecureCalendarServer\bin\Debug\SecureCalendarServer.exe
+Run .\SecureCalendarClient\bin\Debug\SecureCalendarClient.exe
